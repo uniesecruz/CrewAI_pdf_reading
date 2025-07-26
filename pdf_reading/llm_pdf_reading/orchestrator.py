@@ -13,10 +13,11 @@ logger = logging.getLogger(__name__)
 class PDFReadingOrchestrator:
     """Orquestrador principal para leitura e análise de PDFs"""
     
-    def __init__(self, llm=None, use_local_models: Optional[bool] = None):
+    def __init__(self, llm=None, use_local_models: Optional[bool] = None, custom_config: Optional[Dict] = None):
         self.pdf_processor = PDFProcessor()
         self.use_local_models = use_local_models if use_local_models is not None else USE_LOCAL_MODELS
         self.llm_manager = None
+        self.custom_config = custom_config
         
         # Inicializar LLM
         self._initialize_llm(llm)
@@ -29,10 +30,15 @@ class PDFReadingOrchestrator:
         
         if self.use_local_models:
             try:
-                from .local_llm import create_local_llm_manager
-                self.llm_manager = create_local_llm_manager()
+                # Se há configuração personalizada, usar LocalLLMManager diretamente
+                if self.custom_config:
+                    from .local_llm import LocalLLMManager
+                    self.llm_manager = LocalLLMManager(self.custom_config)
+                else:
+                    from .local_llm import create_local_llm_manager
+                    self.llm_manager = create_local_llm_manager()
                 
-                if self.llm_manager.is_available():
+                if self.llm_manager and self.llm_manager.is_available():
                     logger.info(f"🤖 LLM local inicializado: {self.llm_manager.current_provider}")
                 else:
                     logger.warning("⚠️  LLM local não disponível, usando modo simplificado")
