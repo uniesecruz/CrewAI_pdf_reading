@@ -1,0 +1,7 @@
+# Modelos treinados e arquivos relacionados
+# Coloque aqui seus modelos fine-tuned, embeddings salvos, etc.
+
+# Exemplos de arquivos que podem estar aqui:
+# - fine_tuned_model.pkl
+# - embeddings_index.faiss
+# - model_config.json

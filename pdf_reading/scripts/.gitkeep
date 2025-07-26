@@ -1,0 +1,5 @@
+# Scripts de utilitários e automação
+
+run_streamlit.bat
+run_analysis.py
+setup_environment.py
