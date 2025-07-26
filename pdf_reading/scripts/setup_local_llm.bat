@@ -9,10 +9,29 @@ echo   🎯 100%% Gratuito usando GPU local!
 echo ================================================
 echo.
 
-echo 📦 Instalando dependencias Python...
+echo � Verificando estrutura do projeto...
+cd /d "%~dp0.."
+if not exist "requirements.txt" (
+    echo ❌ Arquivo requirements.txt nao encontrado!
+    echo 💡 Execute este script do diretorio scripts/ do projeto
+    echo 📁 Diretorio atual: %cd%
+    pause
+    exit /b 1
+)
+
+echo ✅ Projeto encontrado: %cd%
+echo.
+
+echo �📦 Instalando dependencias Python...
 pip install -r requirements.txt
 if %errorlevel% neq 0 (
+    echo.
     echo ❌ Erro ao instalar dependencias!
+    echo 💡 Possiveis solucoes:
+    echo    1. Ative o ambiente virtual: .venv\Scripts\activate
+    echo    2. Atualize pip: python -m pip install --upgrade pip
+    echo    3. Verifique a versao do Python: python --version
+    echo.
     pause
     exit /b 1
 )
