@@ -182,23 +182,46 @@ def main():
             # Mostrar informações do arquivo
             st.info(f"📄 Arquivo: {uploaded_file.name} ({uploaded_file.size} bytes)")
             
-            # Botão para processar
-            if st.button("🚀 Processar PDF", type="primary"):
-                with st.spinner("Processando PDF... Isso pode levar alguns momentos."):
-                    # Configurar modelo baseado na seleção da UI
-                    # Obter configuração do modelo selecionado
-                    model_config = get_model_config_from_ui() if use_local_models else None
-                    
-                    # Inicializar orquestrador com configuração personalizada
-                    orchestrator = PDFReadingOrchestrator(
-                        use_local_models=use_local_models,
-                        custom_config=model_config
-                    )
-                    
-                    # Processar PDF
-                    result = orchestrator.process_pdf(tmp_file_path)
-                    
-                    if result["success"]:
+            # Verificar se já há um resultado processado
+            if 'pdf_result' in st.session_state and st.session_state['pdf_result']:
+                col1, col2 = st.columns([3, 1])
+                with col1:
+                    st.success("✅ PDF já processado!")
+                with col2:
+                    if st.button("🔄 Reprocessar", help="Processar novamente o PDF"):
+                        # Limpar dados anteriores
+                        for key in ['pdf_result', 'orchestrator', 'model_config', 'questions_history']:
+                            if key in st.session_state:
+                                del st.session_state[key]
+                        st.rerun()
+            else:
+                # Botão para processar
+                if st.button("🚀 Processar PDF", type="primary"):
+                    with st.spinner("Processando PDF... Isso pode levar alguns momentos."):
+                        # Configurar modelo baseado na seleção da UI
+                        # Obter configuração do modelo selecionado
+                        model_config = get_model_config_from_ui() if use_local_models else None
+                        
+                        # Inicializar orquestrador com configuração personalizada
+                        orchestrator = PDFReadingOrchestrator(
+                            use_local_models=use_local_models,
+                            custom_config=model_config
+                        )
+                        
+                        # Processar PDF
+                        result = orchestrator.process_pdf(tmp_file_path)
+                        
+                        # Salvar resultado e orquestrador no session_state
+                        st.session_state['pdf_result'] = result
+                        st.session_state['orchestrator'] = orchestrator
+                        st.session_state['model_config'] = model_config
+                        st.rerun()  # Recarregar para mostrar os resultados
+            
+            # Mostrar resultados se já processado
+            if 'pdf_result' in st.session_state and st.session_state['pdf_result']:
+                result = st.session_state['pdf_result']
+                
+                if result["success"]:
                         # Mostrar resultados
                         st.success("✅ PDF processado com sucesso!")
                         
@@ -275,9 +298,13 @@ def main():
                             if st.button("Responder") and question:
                                 with st.spinner("Gerando resposta..."):
                                     try:
-                                        # Usar a configuração do modelo selecionado
-                                        model_config = get_model_config_from_ui()
-                                        orchestrator_qa = PDFReadingOrchestrator(custom_config=model_config)
+                                        # Usar o orquestrador já existente no session_state
+                                        if 'orchestrator' in st.session_state:
+                                            orchestrator_qa = st.session_state['orchestrator']
+                                        else:
+                                            # Fallback: criar novo orquestrador se necessário
+                                            model_config = get_model_config_from_ui()
+                                            orchestrator_qa = PDFReadingOrchestrator(custom_config=model_config)
                                         
                                         answer = orchestrator_qa.answer_question(result["content"], question)
                                         
@@ -316,9 +343,9 @@ def main():
                                         st.write("**Pergunta:**", qa['question'])
                                         st.write("**Resposta:**", qa['answer'])
                                         st.caption(f"Modelo usado: {qa.get('model', 'desconhecido')}")
-                    
-                    else:
-                        st.error(f"❌ Erro ao processar PDF: {result['error']}")
+                
+                else:
+                    st.error(f"❌ Erro ao processar PDF: {result['error']}")
         
         finally:
             # Limpar arquivo temporário

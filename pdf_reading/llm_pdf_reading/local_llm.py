@@ -33,9 +33,11 @@ class OllamaManager:
         if not self.client:
             return False
         try:
+            # Testar conexão com timeout
             models = self.client.list()
             return True
-        except:
+        except Exception as e:
+            logger.debug(f"Ollama não disponível: {e}")
             return False
     
     def list_models(self) -> List[str]:
@@ -55,11 +57,24 @@ class OllamaManager:
             raise RuntimeError("Cliente Ollama não disponível")
         
         try:
+            # Para Ollama, usar apenas parâmetros básicos
+            ollama_options = {}
+            
+            # Mapear parâmetros para formato Ollama
+            if 'temperature' in kwargs:
+                ollama_options['temperature'] = kwargs['temperature']
+            if 'max_length' in kwargs or 'num_predict' in kwargs:
+                ollama_options['num_predict'] = kwargs.get('num_predict', kwargs.get('max_length', 100))
+            if 'top_p' in kwargs:
+                ollama_options['top_p'] = kwargs['top_p']
+            if 'top_k' in kwargs:
+                ollama_options['top_k'] = kwargs['top_k']
+            
             response = self.client.generate(
                 model=model,
                 prompt=prompt,
                 stream=False,
-                **kwargs
+                options=ollama_options  # Ollama espera options como dict separado
             )
             return response['response']
         except Exception as e:
@@ -192,6 +207,7 @@ class LocalLLMManager:
         
         if self.current_provider == 'ollama':
             model = kwargs.get('model', self.config.get('ollama_model', 'llama2:7b'))
+            # Ollama agora pode lidar com max_length convertendo para num_predict
             return self.ollama.generate(prompt, model=model, **kwargs)
         
         elif self.current_provider == 'huggingface':
