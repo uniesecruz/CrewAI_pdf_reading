@@ -18,15 +18,20 @@ def start_monitoring():
     print("🚀 Iniciando sistema de monitoramento...")
     
     # Configurar alertas
-    def on_high_response_time(model_name: str, response_time: float):
-        print(f"⚠️ ALERTA: {model_name} - Tempo alto: {response_time:.2f}s")
+    def on_alert(alert: dict):
+        alert_type = alert.get('type', 'unknown')
+        message = alert.get('message', 'Alerta desconhecido')
+        severity = alert.get('severity', 'info')
+        
+        if severity == 'critical':
+            print(f"🚨 CRÍTICO: {message}")
+        elif severity == 'warning':
+            print(f"⚠️ ALERTA: {message}")
+        else:
+            print(f"ℹ️ INFO: {message}")
     
-    def on_model_error(model_name: str, error: str):
-        print(f"❌ ERRO: {model_name} - {error}")
-    
-    # Registrar callbacks
-    model_monitor.add_alert_callback("high_response_time", on_high_response_time)
-    model_monitor.add_alert_callback("model_error", on_model_error)
+    # Registrar callback de alerta
+    model_monitor.register_alert_callback(on_alert)
     
     # Iniciar monitoramento
     model_monitor.start_monitoring()

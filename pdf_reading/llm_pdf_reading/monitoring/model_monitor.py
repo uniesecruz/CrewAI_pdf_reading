@@ -9,9 +9,13 @@ from datetime import datetime, timedelta
 from collections import deque
 import json
 
-from .metrics_collector import MetricsCollector, metrics_collector
-from .performance_tracker import PerformanceTracker, performance_tracker
+from .metrics_collector import MetricsCollector
 from .config import PERFORMANCE_CONFIG
+
+# Import com type hint para evitar import circular
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .performance_tracker import PerformanceTracker
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +25,7 @@ class ModelMonitor:
     def __init__(
         self,
         metrics_collector: Optional[MetricsCollector] = None,
-        performance_tracker: Optional[PerformanceTracker] = None
+        performance_tracker: Optional['PerformanceTracker'] = None
     ):
         # Importar e criar dependências se não fornecidas
         if metrics_collector is None:

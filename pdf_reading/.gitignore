@@ -1,5 +1,24 @@
 # Data
 /data/
+*.pdf
+*.docx
+*.txt
+*.csv
+
+# Project specific files
+mlflow.db
+mlruns/
+artifacts/
+models/*.pkl
+models/*.joblib
+models/*.h5
+models/*.onnx
+checkpoints/
+monitoring_cache/
+temp/
+tmp/
+*.tmp
+*.temp
 
 # Mac OS-specific storage files
 .DS_Store
@@ -73,6 +92,11 @@ local_settings.py
 db.sqlite3
 db.sqlite3-journal
 
+# MLflow and monitoring logs
+logs/
+*.log.*
+mlflow_*.log
+
 # Flask stuff:
 instance/
 .webassets-cache
@@ -89,6 +113,9 @@ target/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+*.ipynb_checkpoints/
+notebooks/output/
+notebooks/temp/
 
 # IPython
 profile_default/
@@ -153,6 +180,20 @@ ENV/
 env.bak/
 venv.bak/
 
+# IDE and Editor files
+.vscode/
+.idea/
+*.sublime-*
+.vs/
+
+# Configuration files with sensitive data
+config.ini
+secrets.yaml
+.secrets
+api_keys.txt
+.env.local
+.env.production
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -189,3 +230,25 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+# OS generated files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Large model files
+*.bin
+*.safetensors
+*.gguf
+*.ggml
+
+# Backup files
+*.bak
+*.backup
+*.orig
+
+# Test outputs and reports
+test_results/
+test_outputs/
+coverage_reports/
+performance_reports/
